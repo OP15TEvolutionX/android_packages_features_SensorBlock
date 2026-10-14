@@ -3,7 +3,7 @@
 <resources>
     <string name="clipboard_access_title">Доступ к буферу обмена</string>
     <string name="clipboard_access_summary">Настройки доступа приложений к данным буфера обмена</string>
-    <string name="clipboard_access_explanation">Включите переключатель, чтобы запретить приложению чтение буфера обмена и вставку из него. Приложение по-прежнему сможет копировать данные в буфер.</string>
+    <string name="clipboard_access_explanation">Включите, чтобы запретить приложению чтение буфера обмена</string>
     <string name="clipboard_access_search">Поиск приложений</string>
     <string name="clipboard_access_clear_search">Очистить поиск</string>
     <string name="clipboard_access_blocked">Чтение запрещено</string>

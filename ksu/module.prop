@@ -1,0 +1,6 @@
+id=evolution_clipboard_access_test
+name=Evolution X Clipboard Access (test)
+version=1.0
+versionCode=1
+author=Evolution X
+description=Test build of Settings with per-app clipboard read restrictions. Switch on blocks reading. Built for the matching Evolution X Android 17 firmware.

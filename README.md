@@ -1,6 +1,10 @@
-# Clipboard Access
+# Sensor Block
 
-Controls which apps can read the clipboard. Turning on an app's switch blocks
-clipboard reading. Apps can still write to the clipboard.
+Per-package hardware sensor blocking feature for Evolution X.
+Allows restricting motion and environmental sensor access (accelerometer, gyroscope, magnetic field, etc.) for selected applications.
 
-Licensed under [Apache 2.0](LICENSE).
+## Integration
+
+- Packages under 
+- Compiled into  via  and resource linkfile
+- State stored in 

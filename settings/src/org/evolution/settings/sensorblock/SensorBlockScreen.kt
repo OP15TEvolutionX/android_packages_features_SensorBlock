@@ -163,7 +163,7 @@ private fun SensorBlockAppList(refreshVersion: Int) {
                                     }
                                 } catch (e: Exception) {
                                     if (e is CancellationException) throw e
-                                    Log.e("SensorBlock", "Could not set clipboard mode", e)
+                                    Log.e("SensorBlock", "Could not set sensor mode", e)
                                     Toast.makeText(context, R.string.sensor_block_save_error,
                                         Toast.LENGTH_LONG).show()
                                 } finally {

@@ -1,16 +1,16 @@
-<?xml version=1.0 encoding=utf-8?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Copyright (C) 2026 Evolution X; SPDX-License-Identifier: Apache-2.0 -->
 <resources>
-    <string name=sensor_block_title>Блокировка датчиков</string>
-    <string name=sensor_block_summary>Блокировка доступа приложений к аппаратным датчикам</string>
-    <string name=sensor_block_explanation>Включите, чтобы заблокировать акселерометр, гироскоп и другие датчики движения (требуется перезапуск приложения)</string>
-    <string name=sensor_block_search>Поиск приложений</string>
-    <string name=sensor_block_clear_search>Очистить поиск</string>
-    <string name=sensor_block_blocked>Датчики заблокированы</string>
-    <string name=sensor_block_normal>Стандартный доступ</string>
-    <string name=sensor_block_no_apps>Приложения не найдены</string>
-    <string name=sensor_block_load_error>Не удалось загрузить приложения</string>
-    <string name=sensor_block_save_error>Не удалось изменить доступ к датчикам</string>
-    <string name=sensor_block_retry>Повторить</string>
-    <string name=sensor_block_block_app>Заблокировать датчики для %1</string>
+    <string name="sensor_block_title">Блокировка датчиков</string>
+    <string name="sensor_block_summary">Блокировка доступа приложений к аппаратным датчикам</string>
+    <string name="sensor_block_explanation">Включите, чтобы заблокировать акселерометр, гироскоп и другие датчики движения (требуется перезапуск приложения)</string>
+    <string name="sensor_block_search">Поиск приложений</string>
+    <string name="sensor_block_clear_search">Очистить поиск</string>
+    <string name="sensor_block_blocked">Датчики заблокированы</string>
+    <string name="sensor_block_normal">Стандартный доступ</string>
+    <string name="sensor_block_no_apps">Приложения не найдены</string>
+    <string name="sensor_block_load_error">Не удалось загрузить приложения</string>
+    <string name="sensor_block_save_error">Не удалось изменить доступ к датчикам</string>
+    <string name="sensor_block_retry">Повторить</string>
+    <string name="sensor_block_block_app">Заблокировать датчики для %1$s</string>
 </resources>

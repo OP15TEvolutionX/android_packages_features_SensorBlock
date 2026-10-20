@@ -1,10 +1,7 @@
 # Sensor Block
 
-Per-package hardware sensor blocking feature for Evolution X.
-Allows restricting motion and environmental sensor access (accelerometer, gyroscope, magnetic field, etc.) for selected applications.
+Controls which apps can access motion and environmental sensors. Turning on an
+app's switch blocks the accelerometer, gyroscope and other sensors for that app.
+The app must be restarted for the change to take effect.
 
-## Integration
-
-- Packages under 
-- Compiled into  via  and resource linkfile
-- State stored in 
+Licensed under [Apache 2.0](LICENSE).

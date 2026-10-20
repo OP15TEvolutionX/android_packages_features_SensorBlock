@@ -8,9 +8,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import com.android.settings.R
@@ -18,7 +20,13 @@ import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
 import com.android.settingslib.widget.SettingsThemeHelper
 
 class SensorBlockActivity : CollapsingToolbarBaseActivity() {
+    companion object {
+        private const val KEY_SHOW_ONLY_BLOCKED = "show_only_blocked"
+        private const val MENU_FILTER = 1
+    }
+
     private var refreshVersion by mutableIntStateOf(0)
+    private var showOnlyBlocked by mutableStateOf(false)
     private val packageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             refreshVersion++
@@ -34,12 +42,13 @@ class SensorBlockActivity : CollapsingToolbarBaseActivity() {
             }
         )
         super.onCreate(savedInstanceState)
-        title = getString(R.string.sensor_block_title)
+        showOnlyBlocked = savedInstanceState?.getBoolean(KEY_SHOW_ONLY_BLOCKED) ?: false
+        title = getString(R.string.sensor_block_screen_title)
         actionBar?.setDisplayHomeAsUpEnabled(true)
         window.isStatusBarContrastEnforced = false
         window.isNavigationBarContrastEnforced = false
         setContentView(ComposeView(this).apply {
-            setContent { SensorBlockScreen(refreshVersion) }
+            setContent { SensorBlockScreen(refreshVersion, showOnlyBlocked) }
         })
     }
 
@@ -67,10 +76,34 @@ class SensorBlockActivity : CollapsingToolbarBaseActivity() {
         super.onStop()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(KEY_SHOW_ONLY_BLOCKED, showOnlyBlocked)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menu.add(Menu.NONE, MENU_FILTER, Menu.NONE, R.string.sensor_block_show_blocked)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(MENU_FILTER)?.setTitle(
+            if (showOnlyBlocked) R.string.sensor_block_show_all else R.string.sensor_block_show_blocked
+        )
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+            MENU_FILTER -> {
+                showOnlyBlocked = !showOnlyBlocked
+                invalidateOptionsMenu()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }

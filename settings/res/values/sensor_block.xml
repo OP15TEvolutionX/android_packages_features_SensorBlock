@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Copyright (C) 2026 Evolution X; SPDX-License-Identifier: Apache-2.0 -->
 <resources>
-    <string name="sensor_block_title">Sensor block</string>
-    <string name="sensor_block_summary">Block hardware motion and environmental sensors</string>
+    <string name="sensor_block_screen_title">Sensor block</string>
+    <string name="sensor_block_screen_summary">Block hardware motion and environmental sensors</string>
     <string name="sensor_block_explanation">Turn on to block accelerometer, gyroscope and other motion sensors for an app (requires restarting the app)</string>
     <string name="sensor_block_search">Search apps</string>
     <string name="sensor_block_clear_search">Clear search</string>
@@ -13,4 +13,7 @@
     <string name="sensor_block_save_error">Could not change sensor access</string>
     <string name="sensor_block_retry">Retry</string>
     <string name="sensor_block_block_app">Block sensor access for %1$s</string>
+    <string name="sensor_block_show_blocked">Show only enabled</string>
+    <string name="sensor_block_show_all">Show all</string>
+    <string name="sensor_block_no_blocked_apps">No apps with blocked sensors</string>
 </resources>

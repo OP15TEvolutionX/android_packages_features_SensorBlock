@@ -59,23 +59,25 @@ import com.android.settingslib.spa.framework.theme.SettingsTheme
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 @Composable
-internal fun SensorBlockScreen(refreshVersion: Int) {
+internal fun SensorBlockScreen(refreshVersion: Int, showOnlyBlocked: Boolean) {
     SettingsTheme {
         val background = colorResource(R.color.sensor_block_background)
         val cardColor = colorResource(R.color.sensor_block_card)
         MaterialTheme(colorScheme = MaterialTheme.colorScheme.copy(
             background = background, surface = background, surfaceBright = cardColor,
         )) {
-            SensorBlockAppList(refreshVersion)
+            SensorBlockAppList(refreshVersion, showOnlyBlocked)
         }
     }
 }
 
 @Composable
-private fun SensorBlockAppList(refreshVersion: Int) {
+private fun SensorBlockAppList(refreshVersion: Int, showOnlyBlocked: Boolean) {
     val context = LocalContext.current
     val repository = remember(context) { SensorBlockRepository(context) }
     val scope = rememberCoroutineScope()
@@ -83,15 +85,16 @@ private fun SensorBlockAppList(refreshVersion: Int) {
     var query by rememberSaveable { mutableStateOf("") }
     var loading by remember { mutableStateOf(true) }
     var loadFailed by remember { mutableStateOf(false) }
-    var savingPackage by remember { mutableStateOf<String?>(null) }
     var retryVersion by remember { mutableStateOf(0) }
+    // Serializes read-modify-write of the blocked set and keeps reloads from racing saves.
+    val saveMutex = remember { Mutex() }
+    val icons = remember { HashMap<String, ImageBitmap?>() }
 
-    LaunchedEffect(repository, refreshVersion, retryVersion, savingPackage) {
-        if (savingPackage != null) return@LaunchedEffect
+    LaunchedEffect(repository, refreshVersion, retryVersion) {
         loading = true
         loadFailed = false
         try {
-            apps = withContext(Dispatchers.IO) { repository.loadApps() }
+            apps = saveMutex.withLock { withContext(Dispatchers.IO) { repository.loadApps() } }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e("SensorBlock", "Could not load applications", e)
@@ -101,11 +104,12 @@ private fun SensorBlockAppList(refreshVersion: Int) {
         }
     }
 
-    val filtered = remember(apps, query) {
+    val filtered = remember(apps, query, showOnlyBlocked) {
         val needle = query.trim()
         apps.filter {
-            it.label.contains(needle, ignoreCase = true) ||
-                it.packageName.contains(needle, ignoreCase = true)
+            (!showOnlyBlocked || it.blocked) && (
+                it.label.contains(needle, ignoreCase = true) ||
+                    it.packageName.contains(needle, ignoreCase = true))
         }
     }
 
@@ -148,26 +152,30 @@ private fun SensorBlockAppList(refreshVersion: Int) {
                 }
                 filtered.isEmpty() -> Box(
                     Modifier.fillMaxSize(), contentAlignment = Alignment.Center,
-                ) { Text(stringResource(R.string.sensor_block_no_apps)) }
+                ) {
+                    Text(stringResource(if (showOnlyBlocked && query.isBlank())
+                        R.string.sensor_block_no_blocked_apps else R.string.sensor_block_no_apps))
+                }
                 else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     items(filtered, key = { it.packageName }) { app ->
-                        SensorBlockAppRow(app, enabled = savingPackage == null && !loading) { blocked ->
-                            savingPackage = app.packageName
+                        SensorBlockAppRow(app, icons, Modifier.animateItem()) { blocked ->
+                            // Update optimistically so only this row recomposes; revert on failure.
+                            apps = apps.map {
+                                if (it.packageName == app.packageName) it.copy(blocked = blocked) else it
+                            }
                             scope.launch {
                                 try {
-                                    val updated = withContext(Dispatchers.IO) {
-                                        repository.setBlocked(app, blocked)
-                                    }
-                                    apps = apps.map {
-                                        if (it.packageName == updated.packageName) updated else it
+                                    saveMutex.withLock {
+                                        withContext(Dispatchers.IO) { repository.setBlocked(app, blocked) }
                                     }
                                 } catch (e: Exception) {
                                     if (e is CancellationException) throw e
                                     Log.e("SensorBlock", "Could not set sensor mode", e)
+                                    apps = apps.map {
+                                        if (it.packageName == app.packageName) it.copy(blocked = !blocked) else it
+                                    }
                                     Toast.makeText(context, R.string.sensor_block_save_error,
                                         Toast.LENGTH_LONG).show()
-                                } finally {
-                                    savingPackage = null
                                 }
                             }
                         }
@@ -179,10 +187,18 @@ private fun SensorBlockAppList(refreshVersion: Int) {
 }
 
 @Composable
-private fun SensorBlockAppRow(app: SensorBlockApp, enabled: Boolean, onChange: (Boolean) -> Unit) {
+private fun SensorBlockAppRow(
+    app: SensorBlockApp,
+    icons: MutableMap<String, ImageBitmap?>,
+    modifier: Modifier = Modifier,
+    onChange: (Boolean) -> Unit,
+) {
     val context = LocalContext.current
-    val icon by produceState<ImageBitmap?>(null, app.info) {
-        value = withContext(Dispatchers.IO) {
+    // Keyed by package name and cached so list reloads (new ApplicationInfo objects) don't
+    // drop and reload every icon.
+    val icon by produceState(icons[app.packageName], app.packageName) {
+        if (icons.containsKey(app.packageName)) return@produceState
+        val loaded = withContext(Dispatchers.IO) {
             try {
                 app.info.loadIcon(context.packageManager).toBitmap(96, 96).asImageBitmap()
             } catch (e: Exception) {
@@ -190,16 +206,18 @@ private fun SensorBlockAppRow(app: SensorBlockApp, enabled: Boolean, onChange: (
                 null
             }
         }
+        icons[app.packageName] = loaded
+        value = loaded
     }
     val description = stringResource(R.string.sensor_block_block_app, app.label)
     Card(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceBright),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()
-                .toggleable(app.blocked, enabled = enabled, role = Role.Switch,
+                .toggleable(app.blocked, role = Role.Switch,
                     onValueChange = onChange)
                 .semantics { contentDescription = description }
                 .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -221,7 +239,7 @@ private fun SensorBlockAppRow(app: SensorBlockApp, enabled: Boolean, onChange: (
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             // The whole row owns the switch semantics and click target.
-            Switch(checked = app.blocked, onCheckedChange = null, enabled = enabled)
+            Switch(checked = app.blocked, onCheckedChange = null)
         }
     }
 }

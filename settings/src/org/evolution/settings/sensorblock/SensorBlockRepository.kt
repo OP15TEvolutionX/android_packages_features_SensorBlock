@@ -14,6 +14,7 @@ internal data class SensorBlockApp(
     val blocked: Boolean,
 ) {
     val packageName: String get() = info.packageName
+    val isSystem: Boolean get() = info.flags and ApplicationInfo.FLAG_SYSTEM != 0
 }
 
 internal class SensorBlockRepository(private val context: Context) {

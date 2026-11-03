@@ -3,7 +3,7 @@
 <resources>
     <string name="sensor_block_screen_title">Блокировка сенсоров</string>
     <string name="sensor_block_screen_summary">Блокировка доступа приложений к аппаратным датчикам</string>
-    <string name="sensor_block_explanation">Включите, чтобы заблокировать акселерометр, гироскоп и другие датчики движения (требуется перезапуск приложения)</string>
+    <string name="sensor_block_explanation">Включите, чтобы заблокировать акселерометр, гироскоп и другие датчики движения</string>
     <string name="sensor_block_blocked">Датчики заблокированы</string>
     <string name="sensor_block_normal">Стандартный доступ</string>
     <string name="sensor_block_no_apps">Приложения не найдены</string>

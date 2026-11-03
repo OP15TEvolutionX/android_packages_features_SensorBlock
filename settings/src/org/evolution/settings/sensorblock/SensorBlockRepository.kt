@@ -3,6 +3,7 @@
  */
 package org.evolution.settings.sensorblock
 
+import android.app.ActivityManager
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.provider.Settings
@@ -23,6 +24,7 @@ internal class SensorBlockRepository(private val context: Context) {
     }
 
     private val packageManager = context.packageManager
+    private val activityManager = context.getSystemService(ActivityManager::class.java)
 
     private fun getBlockedSet(): MutableSet<String> {
         val raw = Settings.Secure.getString(context.contentResolver, SENSOR_BLOCKED_PACKAGES) ?: ""
@@ -67,6 +69,8 @@ internal class SensorBlockRepository(private val context: Context) {
             blockedSet.remove(app.packageName)
         }
         saveBlockedSet(blockedSet)
+        // Sensors are filtered when the process starts, so restart the app.
+        activityManager.forceStopPackage(app.packageName)
         return app.copy(info = current, blocked = blocked)
     }
 }

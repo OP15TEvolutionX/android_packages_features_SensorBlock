@@ -42,6 +42,8 @@ internal class SensorBlockRepository(private val context: Context) {
         val collator = Collator.getInstance()
         val blockedSet = getBlockedSet()
         return packageManager.getInstalledApplications(0)
+            // Overlays and other resource-only packages run no code, so there is nothing to restrict.
+            .filter { it.flags and ApplicationInfo.FLAG_HAS_CODE != 0 && !it.isResourceOverlay }
             .map { info ->
                 SensorBlockApp(
                     info = info,

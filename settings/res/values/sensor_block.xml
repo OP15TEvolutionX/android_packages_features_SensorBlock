@@ -2,6 +2,7 @@
 <!-- Copyright (C) 2026 Evolution X; SPDX-License-Identifier: Apache-2.0 -->
 <resources>
     <string name="sensor_block_screen_title">Sensor block</string>
+    <string name="sensor_block_screen_summary">Block hardware motion and environmental sensors</string>
     <string name="sensor_block_explanation">Turn on to block accelerometer, gyroscope and other motion sensors for an app. The app still sees the sensors, but gets no data from them</string>
     <string name="sensor_block_no_apps">No apps found</string>
     <string name="sensor_block_load_error">Could not load apps</string>

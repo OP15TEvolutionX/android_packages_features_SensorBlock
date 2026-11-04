@@ -2,6 +2,7 @@
 <!-- Copyright (C) 2026 Evolution X; SPDX-License-Identifier: Apache-2.0 -->
 <resources>
     <string name="sensor_block_screen_title">Блокировка сенсоров</string>
+    <string name="sensor_block_screen_summary">Блокировка доступа приложений к аппаратным датчикам</string>
     <string name="sensor_block_explanation">Включите, чтобы заблокировать акселерометр, гироскоп и другие датчики движения. Приложение будет видеть датчики, но не получит от них данных</string>
     <string name="sensor_block_no_apps">Приложения не найдены</string>
     <string name="sensor_block_load_error">Не удалось загрузить приложения</string>
